@@ -11,8 +11,8 @@ client.on('ready', () => {
     console.log(`Logged in as ${client.user.tag}!`);
 });
 
-  //reads chat messages
-  client.on('message', (message) => {
+//reads chat messages
+client.on('message', (message) => {
    //messages to ignore
    if (!message.content.startsWith(prefix) || message.author.bot) return;
 
