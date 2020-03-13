@@ -12,7 +12,7 @@ client.on('ready', () => {
 });
 
   //reads chat messages
-client.on('message', async message => {
+  client.on('message', (message) => {
    //messages to ignore
    if (!message.content.startsWith(prefix) || message.author.bot) return;
 
@@ -22,9 +22,9 @@ client.on('message', async message => {
 
    //help command
    if (command === 'help') {
-      message.channel.send("help");
-      //help();
+      help(message);
    }
+
    //watchlist command
    if (command === 'watchlist') {
       if (args[0] != null) {
@@ -38,6 +38,7 @@ client.on('message', async message => {
       }
       //listWatchlist();
    }
+
    //watching command
    if (command === 'watching') {
       if (args[0] != null) { 
@@ -54,5 +55,10 @@ client.on('message', async message => {
       //listWatching();
    } 
 });
+
+//help function to display commands
+function help(message) {
+   message.channel.send('Commands \n!help : displays the directions for commands \n\n!watchlist : lists the users watchlist\n-add \"title" : adds title to users watchlist\n-remove "title" : removes title from users watchlist\n\n!watching : lists what the users is currently watching along with links to the media\n-add "title" : adds the title to the watching\n-remove "title" : removes the title from the watchlist\n-update : checks for any updates in what the user is watching');
+};
 
  client.login(token);
