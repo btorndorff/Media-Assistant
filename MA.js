@@ -40,7 +40,7 @@ client.on('message', (message) => {
             message.channel.send("Invalid Command");
          }
       }
-      listArr(message, watchlist);
+      message.channel.send(listArr(message, watchlist));
    }
 
    //watching command
@@ -121,6 +121,7 @@ function listArr(message, arr) {
    for (let i = 0; i < arr.length; i++) {
       print += "- " + arr[i] + "\n";
    }
-   message.channel.send(print);
+   return print;
 }
- client.login(token);
+
+client.login(token);
