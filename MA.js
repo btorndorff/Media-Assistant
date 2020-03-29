@@ -1,11 +1,16 @@
 //import dependencies 
 const Discord = require('discord.js');
-const malScraper = require('mal-scraper')
+const malScraper = require('mal-scraper');
+var Anime = require('anime-scraper').Anime;
 const client = new Discord.Client();
 const {
    prefix,
    token,
 } = require('./config.json');
+
+//database
+const Enmap = require("enmap");
+client.media = new Enmap({name: "media"});
 
 //setup array for watchlist and watching (need to convert to somethings so it becomes permanent)
 var watchlist = [];
@@ -25,6 +30,13 @@ client.on('message', (message) => {
    const args = message.content.slice(prefix.length).split(' ');
    const command = args.shift().toLowerCase(); 
 
+   const key = `${message.author.id}`;
+   client.media.ensure(key, {
+     user: message.author.id,
+     watchlist: [],
+     watching: []
+   });
+
    //help command
    if (command === 'help') {
       help(message);
@@ -32,25 +44,31 @@ client.on('message', (message) => {
 
    //watchlist command
    if (command === 'wl') {
+      watchlist = client.media.get(key, "watchlist");
       if (args[0] != null) {
-         if (args[0] == "add") {
-            addWatchlist(message, args);
-         } else if (args[0] == "remove") {
-            removeWatchlist(message, args);
+         if (args[0] === "add") {
+            addWatchlist(message, args, key);
+         } else if (args[0] === "remove") {
+            removeWatchlist(message, args, key);
+         } else if (args[0] === "clear") {
+            watchlist = [];
+            message.channel.send("Cleared!");
+            client.media.set(key, watchlist, "watchlist")
          } else {
             message.channel.send("Invalid Command");
          }
       }
-      listArr(message, watchlist, "Watchlist");
+      listArg(message, watchlist, "WatchList");
    }
 
    //watching command
    if (command === 'w') {
+      watching = client.media.get(key, "watching");
       if (args[0] != null) { 
          if (args[0] == "add") {
-            addWatching(message, args);
+            addWatching(message, args, key);
          } else if (args[0] == "remove") {
-            //removeWatching();
+            removeWatching(message, args, key);
          } else if (args[0] == "update") {
             //updateWatching();
          } else {
@@ -58,7 +76,7 @@ client.on('message', (message) => {
          }
       }
       listArr(message, watching, "Watching");
-   } 
+   }
 });
 
 //help function to display commands
@@ -67,7 +85,8 @@ function help(message) {
 };
 
 //adds specified title to users watchlist
-function addWatchlist(message, args) {
+function addWatchlist(message, args, key) {
+
    if (args[1] != null) {
       //get the title 
       let title = "";
@@ -76,70 +95,13 @@ function addWatchlist(message, args) {
       }
       //adds title to watchlist
       addTitle(message, title.toLowerCase(), watchlist);
+      client.media.set(key, watchlist, "watchlist");
    } else {
       message.channel.send("No title specified");
    }
 }
 
-//removes specified title from users watchlist
-function removeWatchlist(message, args) {
-   if (args[1] != null) {
-      //get the title 
-      let title = "";
-      for (let i = 1; i < args.length ; i++) {
-         title += args[i] + " ";
-      }
-      //removes title from arr
-      removeTitle(message, title.toLowerCase(), watchlist);
-   } else {
-      message.channel.send("No title specified");
-   }
-}
-
-//helper method for both watching and watchlist to check if title is in list and then add it
-function addTitle(message, title, arr) {
-   if(arr.indexOf(title) === -1) {
-      arr.push(title);
-      malScraper.getInfoFromName(title)
-         .then((data) =>{
-            console.log(data);
-         }
-         )
-         .catch((err) => console.log(err));
-      message.channel.send("Added " + title);
-   } else {
-      message.channel.send(title + " was not found in your watchlist");
-   }
-}
-
-//helper function for watching and watchlist to delete title
-function removeTitle(message, title, arr) {
-   if(arr.indexOf(title) != -1) {
-      arr.splice(arr.indexOf(title),1);
-      message.channel.send("Removed " + title);
-   } 
-}
-
-//prints the watchlist
-function listArr(message, arr, arrName) {
-   let print = message.author.tag + " " + arrName + ": \n";
-   message.channel.send(print);
-   for (let i = 0; i < arr.length; i++) {
-      malScraper.getInfoFromName(arr[i])
-      .then((data) =>{
-         message.channel.send(data.englishTitle + " - " + data.url);
-      }
-      )
-   }
-}
- client.login(token);
-
-function getAnime(title) {
-   promise = malScraper.getInfoFromName(title);
-   return promise;
-}
-
- function addWatching(message, args) {
+function addWatching(message, args, key) {
    if (args[1] != null) {
       //get the title 
       let title = "";
@@ -148,8 +110,84 @@ function getAnime(title) {
       }
       //adds title to watchlist
       addTitle(message, title.toLowerCase(), watching);
-      removeTitle(message, title.toLowerCase(), watchlist);
+      removeTitle(message, title.toLowerCase(), watchlist)
+      client.media.set(key, watching, "watching");
    } else {
       message.channel.send("No title specified");
    }
- }
+}
+
+//removes specified title from users watchlist
+function removeWatchlist(message, args, key) {
+   if (args[1] != null) {
+      //get the title 
+      let title = "";
+      for (let i = 1; i < args.length ; i++) {
+         title += args[i] + " ";
+      }
+      //removes title from arr
+      removeTitle(message, title.toLowerCase(), watchlist);
+      client.media.set(key, watchlist, "watchlist");
+   } else {
+      message.channel.send("No title specified");
+   }
+}
+
+function removeWatching(message, args, key) {
+   if (args[1] != null) {
+      //get the title 
+      let title = "";
+      for (let i = 1; i < args.length ; i++) {
+         title += args[i] + " ";
+      }
+      //removes title from arr
+      removeTitle(message, title.toLowerCase(), watching);
+      client.media.set(key, watching, "watching");
+   } else {
+      message.channel.send("No title specified");
+   }
+}
+
+//helper method for both watching and watchlist to check if title is in list and then add it
+function addTitle(message, title, arr) {
+   if(arr.indexOf(title) === -1) {
+      arr.push(title)
+   } else {
+      message.channel.send(title + " is already in your watchlist");
+   }
+}
+
+//helper function for watching and watchlist to delete title
+function removeTitle(message, title, arr) {
+   if(arr.indexOf(title) != -1) {
+      arr.splice(arr.indexOf(title),1);
+   }
+}
+
+//prints the watchlist
+function listArg(message, arr, arrName) {
+   let print = message.author.tag + " " + arrName + ": \n";
+   message.channel.send(print);
+   for (let i = 0; i < arr.length; i++) {
+      malScraper.getInfoFromName(arr[i])
+      .then((data) =>{
+         message.channel.send(data.title + " - " + data.url);
+      }
+      )
+   }
+}
+//prints the watching
+function listArr(message, arr, arrName) {
+   let print = message.author.tag + " " + arrName + ": \n";
+   message.channel.send(print);
+   for (let i = 0; i < arr.length; i++) {
+      Anime.fromName(arr[i]).then(function (anime) {
+         anime.episodes[anime.episodes.length - 1].fetch().then(function (episode) {
+            console.log(episode)
+           message.channel.send("Latest Episode: " + episode.url)
+         })
+       })
+   }
+}
+
+client.login(token);
