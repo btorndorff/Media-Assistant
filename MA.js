@@ -1,6 +1,7 @@
 //import dependencies 
 const Discord = require('discord.js');
 const client = new Discord.Client();
+var Anime = require('anime-scraper').Anime;
 const malScraper = require('mal-scraper')
 const {
    prefix,
@@ -17,7 +18,8 @@ var watching = [];
 
 //notify terminal of bot logging in
 client.on('ready', () => {
-    console.log(`Logged in as ${client.user.tag}!`);
+   client.user.setActivity('>help')
+   console.log(`Logged in as ${client.user.tag}!`);
 });
 
 //reads chat messages
@@ -74,13 +76,13 @@ client.on('message', (message) => {
             message.channel.send("Invalid Command")
          }
       }
-      listArr(message, watching, "Watching");
+      listArg(message, watching, "Watching");
    }
 });
 
 //help function to display commands
 function help(message) {
-   message.channel.send('Commands \n!help : displays the directions for commands \n\n!watchlist : lists the users watchlist\n-add \"title" : adds title to users watchlist\n-remove "title" : removes title from users watchlist\n\n!watching : lists what the users is currently watching along with links to the media\n-add "title" : adds the title to the watching\n-remove "title" : removes the title from the watchlist\n-update : checks for any updates in what the user is watching');
+   message.channel.send('Commands \n>help : displays the directions for commands \n\n>wl : lists the users watchlist (the animes you want to watch)\n >wl add <title> : adds title to users watchlist\n>wl remove <title> : removes title from users watchlist (copy the title from discord)\n\n>w : lists what the users is currently watching along with links to the most current episode\n>w add <title> : adds the title to the watching list\n>w remove <title> : removes the title from the watching\n>w update : checks for any updates in what the user is watching');
 };
 
 //adds specified title to users watchlist
@@ -149,8 +151,8 @@ function removeWatching(message, args, key) {
 
 //helper method for both watching and watchlist to check if title is in list and then add it
 function addTitle(message, title, arr) {
-   if(arr.indexOf(title) === -1) {
-      arr.push(title)
+   if(arr.indexOf(title.trim()) === -1) {
+      arr.push(title);
    } else {
       message.channel.send(title + " is already in your watchlist");
    }
@@ -158,7 +160,7 @@ function addTitle(message, title, arr) {
 
 //helper function for watching and watchlist to delete title
 function removeTitle(message, title, arr) {
-   if(arr.indexOf(title) != -1) {
+   if(arr.indexOf(title.trim()) != -1) {
       arr.splice(arr.indexOf(title),1);
    }
 }
@@ -170,9 +172,29 @@ function listArr(message, arr, arrName) {
    for (let i = 0; i < arr.length; i++) {
       malScraper.getInfoFromName(arr[i])
       .then((data) =>{
-         message.channel.send(data.englishTitle + " - " + data.url);
-      }
-      )
+         arr[i] = data.title.toLowerCase().trim();
+         message.channel.send(data.title + " - " + data.url);
+         client.media.set(message.author.id, watchlist, "watchlist");
+      })
+   }
+}
+
+//prints the watching
+function listArg(message, arr, arrName) {
+   let print = message.author.tag + " " + arrName + ": \n";
+   message.channel.send(print);
+   for (let i = 0; i < arr.length; i++) {
+      malScraper.getInfoFromName(arr[i])
+      .then((data) =>{
+         arr[i] = data.title.toLowerCase().trim();
+         message.channel.send(data.title);
+         client.media.set(message.author.id, watching, "watching");
+      })
+      Anime.fromName(arr[i]).then(function (anime) {
+         anime.episodes[anime.episodes.length - 1].fetch().then(function (episode) {
+            message.channel.send("Latest Episode: " + episode.url)
+         })
+       })
    }
 }
 
