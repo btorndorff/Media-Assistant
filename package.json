@@ -1,0 +1,32 @@
+{
+  "name": "media-assistant",
+  "version": "1.0.0",
+  "description": "A discord bot that allows users to keep track of what they are watching and what they want to watch",
+  "main": "MA.js",
+  "dependencies": {
+    "anime-scraper": "^3.1.1",
+    "better-sqlite3": "^6.0.1",
+    "discord.js": "^12.0.2",
+    "enmap": "^5.2.4",
+    "ffmpeg": "^0.0.4",
+    "keyv": "^4.0.0",
+    "mal-scraper": "^2.6.8",
+    "node-gyp": "^6.1.0",
+    "sequelize": "^5.21.5",
+    "sqlite3": "^4.1.1"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "start": "node MA.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/btorndorff/Media-Assistant.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/btorndorff/Media-Assistant/issues"
+  },
+  "homepage": "https://github.com/btorndorff/Media-Assistant#readme"
+}
