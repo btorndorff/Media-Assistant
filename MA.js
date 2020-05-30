@@ -70,10 +70,14 @@ client.on('message', (message) => {
             addWatching(message, args, key);
          } else if (args[0] == "remove") {
             removeWatching(message, args, key);
+         } else if (args[0] == "clear") {
+            watching = [];
+            message.channel.send("Cleared!");
+            client.media.set(key, watching, "watching")
          } else if (args[0] == "update") {
             //updateWatching();
          } else {
-            message.channel.send("Invalid Command")
+            message.channel.send("Invalid Command");
          }
       }
       listArg(message, watching, "Watching");
@@ -87,7 +91,6 @@ function help(message) {
 
 //adds specified title to users watchlist
 function addWatchlist(message, args, key) {
-
    if (args[1] != null) {
       //get the title 
       let title = "";
@@ -150,13 +153,27 @@ function removeWatching(message, args, key) {
 }
 
 //helper method for both watching and watchlist to check if title is in list and then add it
-function addTitle(message, title, arr) {
+async function addTitle(message, title, arr) {
    if(arr.indexOf(title.trim()) === -1) {
-      arr.push(title);
+      /*const info = await malScraper.getInfoFromName(title)
+         .then((resolve) => {
+            let anime ={
+               title: resolve.title,
+               url: resolve.url
+            }
+            arr.push(anime);
+            //message.channel.send("a" + anime.title);
+         })
+         .catch((fail) => {
+            message.channel.send(title + "was not found");
+         });
+         message.channel.send("aaa");*/
+         arr.push(title);
    } else {
       message.channel.send(title + " is already in your watchlist");
    }
 }
+
 
 //helper function for watching and watchlist to delete title
 function removeTitle(message, title, arr) {
@@ -176,6 +193,7 @@ function listArr(message, arr, arrName) {
          message.channel.send(data.title + " - " + data.url);
          client.media.set(message.author.id, watchlist, "watchlist");
       })
+      //message.channel.send(arr[i].title + "-" + arr[i].url);
    }
 }
 
