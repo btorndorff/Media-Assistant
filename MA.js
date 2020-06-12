@@ -5,8 +5,6 @@ const client = new Discord.Client();
 const malScraper = require('mal-scraper')
 const prefix = process.env.PREFIX;
 const token = process.env.DISCORD_TOKEN;
-console.log(prefix);
-console.log(token);
 
 //database
 const Enmap = require("enmap");
@@ -26,7 +24,6 @@ client.on('ready', () => {
 //reads chat messages
 client.on('message', (message) => {
    //messages to ignore
-   console.log(message.content);
    if (!message.content.startsWith(prefix) || message.author.bot) return;
    
 
