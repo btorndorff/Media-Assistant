@@ -147,4 +147,4 @@ async function listArr(message, arr, arrName) {
    }
 }
 
-client.login(token);
+client.login();
