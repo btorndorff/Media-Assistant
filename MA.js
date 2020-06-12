@@ -6,6 +6,7 @@ const malScraper = require('mal-scraper')
 const prefix = process.env.PREFIX;
 const token = process.env.DISCORD_TOKEN;
 
+
 //database
 const Enmap = require("enmap");
 client.media = new Enmap({
@@ -25,6 +26,7 @@ client.on('ready', () => {
 client.on('message', (message) => {
    //messages to ignore
    if (!message.content.startsWith(prefix) || message.author.bot) return;
+   console.log(message.content);
 
    //splits message into command and arguments
    const args = message.content.slice(prefix.length).split(' ');
