@@ -15,7 +15,5 @@ module.exports = {
         connection.once('open', () => {
             console.log("MongoDB database connection established successfully");
         });
-
-        
     }
 };

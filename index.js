@@ -99,7 +99,23 @@ async function addTitle(message, title, arr) {
             console.log(err);
         }
 
-        if (user) {
+        if (!user) {
+            const animeInfo = malScraper.getResultsFromSearch(title)
+                .then((data) => {
+                    let anime = data[0].name;
+                    arr = [];
+                    arr.push(anime);
+                    const newUser = {
+                        userID: message.author.id,
+                        watchlist: arr
+                    }
+                    User.create(newUser, function (err, small) {
+                        if (err) return handleError(err);
+                        // saved!
+                    });
+                    message.channel.send(anime + " added!");
+                });
+        } else {
             const animeInfo = malScraper.getResultsFromSearch(title)
                 .then((data) => {
                     let anime = data[0].name;
